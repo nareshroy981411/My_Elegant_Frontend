@@ -52,7 +52,7 @@ const Landingpage = () => {
       <br /><br />
 
       {/* Slider */}
-      <Container style={{ maxWidth: "100%", padding: 0 }}>
+      <Container style={{ maxWidth:"97%", padding: 0 ,}}>
         <Slider {...sliderSettings}>
           {slides.map((slide, index) => (
             <div key={index}>
@@ -83,11 +83,11 @@ const Landingpage = () => {
       </Container>
 
       {/* About Section */}
-      <Container sx={{ my: 6, px: { xs: 2, sm: 3, md: 6 } }}>
+      <Container sx={{ my: 6, px: { xs: 2, sm: 3, md: 6 } }} style={{ maxWidth:"100%"}}>
         <Typography variant="h4" gutterBottom textAlign="center">
           About Us
         </Typography>
-        <Typography variant="body1" textAlign="justify" gutterBottom>
+        <Typography variant="body1" textAlign="justify" gutterBottom >
           RealEstatePro is a leading platform connecting buyers, sellers, and real estate professionals. 
           With a mission to revolutionize the property market, we provide innovative tools and resources 
           to make real estate transactions seamless and efficient.

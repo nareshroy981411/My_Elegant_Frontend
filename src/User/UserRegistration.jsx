@@ -5,124 +5,98 @@ import {
   TextField,
   Button,
   Grid,
-  Radio,
-  RadioGroup,
-  FormControlLabel,
-  FormLabel,
   InputAdornment,
   IconButton,
   AppBar,
   Toolbar,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import HomeIcon from "@mui/icons-material/Home"; // Import the HomeIcon
+import HomeIcon from "@mui/icons-material/Home";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const UserRegistrationForm = () => {
   const navigate = useNavigate();
-
   const [formData, setFormData] = useState({
-    fullName: "",
+    fullname: "",
     email: "",
     password: "",
-    mobileNumber: "",
-    workStatus: "experienced",
-    resume: null,
+    mobilenumber: "",
     skills: "",
+    resume: null,
   });
-
   const [showPassword, setShowPassword] = useState(false);
-
-  const [errors, setErrors] = useState({
-    email: "",
-    password: "",
-    mobileNumber: "",
-    resume: "",
-  });
+  const [errors, setErrors] = useState({});
+  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "info" });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
-    // Validate Email
-    if (name === "email") {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(value) && value !== "") {
-        setErrors((prev) => ({
-          ...prev,
-          email: "Please enter a valid email ID.",
-        }));
-      } else {
-        setErrors((prev) => ({ ...prev, email: "" }));
-      }
-    }
-
-    // Validate Password
-    if (name === "password") {
-      if (value.length < 6 && value !== "") {
-        setErrors((prev) => ({
-          ...prev,
-          password: "Password must be at least 6 characters.",
-        }));
-      } else {
-        setErrors((prev) => ({ ...prev, password: "" }));
-      }
-    }
-
-    // Validate Mobile Number
-    if (name === "mobileNumber") {
-      const mobileRegex = /^[0-9]{10}$/;
-      if (!mobileRegex.test(value) && value !== "") {
-        setErrors((prev) => ({
-          ...prev,
-          mobileNumber: "Enter a valid 10-digit mobile number.",
-        }));
-      } else {
-        setErrors((prev) => ({ ...prev, mobileNumber: "" }));
-      }
-    }
-
     setFormData((prev) => ({ ...prev, [name]: value }));
+
+    const newErrors = { ...errors };
+    if (name === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+      newErrors.email = "Please enter a valid email.";
+    } else if (name === "password" && value.length < 6) {
+      newErrors.password = "Password must be at least 6 characters.";
+    } else if (name === "mobilenumber" && !/^[0-9]{10}$/.test(value)) {
+      newErrors.mobilenumber = "Enter a valid 10-digit mobile number.";
+    } else {
+      newErrors[name] = "";
+    }
+    setErrors(newErrors);
   };
 
   const handleResumeUpload = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      setFormData((prev) => ({ ...prev, resume: file }));
-      setErrors((prev) => ({ ...prev, resume: "" }));
-    }
+    setFormData((prev) => ({ ...prev, resume: file }));
+    setErrors((prev) => ({ ...prev, resume: file ? "" : "Resume upload is required." }));
   };
 
-  const handleSubmit = (e) => {
+  const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (
-      errors.email ||
-      errors.password ||
-      errors.mobileNumber ||
-      errors.resume
-    ) {
-      alert("Please correct the errors before submitting.");
+
+    if (!formData.resume) {
+      setErrors((prev) => ({ ...prev, resume: "Resume upload is required." }));
       return;
     }
-    alert("Registration successful!");
-    console.log("Form Data:", formData);
-  };
 
-  const togglePasswordVisibility = () => {
-    setShowPassword((prev) => !prev);
+    const formDataToSend = new FormData();
+    Object.entries(formData).forEach(([key, value]) => {
+      formDataToSend.append(key, value);
+    });
+
+    try {
+      const response = await axios.post(
+        "https://my-elegant-backend-api.onrender.com/users/register",
+        formDataToSend
+      );
+
+      if (response.status === 201) {
+        setSnackbar({ open: true, message: "Registration successful!", severity: "success" });
+      }
+    } catch (error) {
+      const errorMessage =
+        error.response?.status === 500
+          ? "This email or mobile number is already registered."
+          : error.response?.data?.message || "An error occurred. Please try again.";
+      setSnackbar({ open: true, message: errorMessage, severity: "error" });
+    }
   };
 
   return (
     <>
       <AppBar position="sticky" color="primary">
         <Toolbar>
-          <Box sx={{ display: "flex", alignItems: "center", flexGrow: 1 }}>
-            <IconButton color="inherit" onClick={() => navigate("/")}>
-              <HomeIcon fontSize="large" />
-            </IconButton>
-            <Typography variant="h5" component="div" sx={{ marginRight: 1 }}>
-              RealEstatePro
-            </Typography>
-          </Box>
+          <IconButton color="inherit" onClick={() => navigate("/")}>
+            <HomeIcon />
+          </IconButton>
+          <Typography variant="h5" sx={{ flexGrow: 1 }}>
+            RealEstatePro
+          </Typography>
           <Button color="inherit" onClick={() => navigate("/Userlogin")}>
             Login
           </Button>
@@ -131,12 +105,12 @@ const UserRegistrationForm = () => {
           </Button>
         </Toolbar>
       </AppBar>
+
       <Box
         sx={{
           maxWidth: 500,
           margin: "50px auto",
           padding: 4,
-          border: "1px solid #ddd",
           borderRadius: 3,
           backgroundColor: "#fff",
           boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
@@ -144,92 +118,51 @@ const UserRegistrationForm = () => {
       >
         <Typography
           variant="h5"
-          sx={{ fontWeight: 600, marginBottom: 2, textAlign: "center" }}
+          sx={{ fontWeight: 600, mb: 2, textAlign: "center" }}
         >
           MyElegant SignUp
         </Typography>
+
         <form onSubmit={handleSubmit}>
           <Grid container spacing={3}>
-            {/* Full Name */}
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                required
-                label="Full name"
-                placeholder="What is your name?"
-                name="fullName"
-                value={formData.fullName}
-                onChange={handleChange}
-              />
-            </Grid>
-            {/* Email */}
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                required
-                type="email"
-                label="Email ID"
-                placeholder="Tell us your Email ID"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                error={!!errors.email}
-                helperText={errors.email}
-              />
-            </Grid>
-            {/* Password */}
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                required
-                type={showPassword ? "text" : "password"}
-                label="Password"
-                placeholder="(Minimum 6 characters)"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                error={!!errors.password}
-                helperText={errors.password}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton onClick={togglePasswordVisibility} edge="end">
-                        {showPassword ? <VisibilityOff /> : <Visibility />}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            </Grid>
-            {/* Mobile Number */}
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                required
-                type="tel"
-                label="Mobile number"
-                placeholder="Enter your mobile number"
-                name="mobileNumber"
-                value={formData.mobileNumber}
-                onChange={handleChange}
-                error={!!errors.mobileNumber}
-                helperText={errors.mobileNumber}
-              />
-            </Grid>
+            {[
+              { name: "fullname", label: "Full Name" },
+              { name: "email", label: "Email" },
+              { name: "password", label: "Password" },
+              { name: "mobilenumber", label: "Mobile Number" },
+              { name: "skills", label: "Skills" },
+            ].map(({ name, label }) => (
+              <Grid key={name} item xs={12}>
+                <TextField
+                  fullWidth
+                  required
+                  label={label}
+                  type={name === "password" && !showPassword ? "password" : "text"}
+                  name={name}
+                  value={formData[name]}
+                  onChange={handleChange}
+                  error={!!errors[name]}
+                  helperText={errors[name]}
+                  InputProps={
+                    name === "password"
+                      ? {
+                          endAdornment: (
+                            <InputAdornment position="end">
+                              <IconButton
+                                onClick={togglePasswordVisibility}
+                                edge="end"
+                              >
+                                {showPassword ? <VisibilityOff /> : <Visibility />}
+                              </IconButton>
+                            </InputAdornment>
+                          ),
+                        }
+                      : null
+                  }
+                />
+              </Grid>
+            ))}
 
-            {/* Skills */}
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                required
-                label="Skills"
-                placeholder="Enter your skills (e.g., React, Python, SQL)"
-                name="skills"
-                value={formData.skills}
-                onChange={handleChange}
-              />
-            </Grid>
-            {/* Resume Upload */}
             <Grid item xs={12}>
               <Button
                 variant="outlined"
@@ -245,26 +178,25 @@ const UserRegistrationForm = () => {
                   onChange={handleResumeUpload}
                 />
               </Button>
+              {errors.resume && (
+                <Typography color="error" variant="body2">
+                  {errors.resume}
+                </Typography>
+              )}
             </Grid>
 
-            {/* Submit Button */}
-            <Grid item xs={12} sx={{ textAlign: "center" }}>
-              <Button
-                type="submit"
-                variant="contained"
-                color="primary"
-                size="large"
-              >
+            <Grid item xs={12} textAlign="center">
+              <Button type="submit" variant="contained" color="primary" size="large">
                 SignUp
               </Button>
             </Grid>
-            <Grid item xs={12} sx={{ textAlign: "center", marginTop: 0 }}>
+
+            <Grid item xs={12} textAlign="center">
               <Typography variant="body2">
                 Already a user?{" "}
                 <Button
-                  style={{color:"blue"}}
+                  style={{ color: "blue" }}
                   onClick={() => navigate("/Userlogin")}
-                  sx={{ textTransform: "full-size-kana", padding: 0 }}
                 >
                   Login
                 </Button>
@@ -273,6 +205,21 @@ const UserRegistrationForm = () => {
           </Grid>
         </form>
       </Box>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity}
+          sx={{ width: "100%" }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </>
   );
 };

@@ -5,76 +5,124 @@ import {
   TextField,
   Button,
   Grid,
-  InputAdornment,
   IconButton,
   AppBar,
   Toolbar,
+  Snackbar,
+  Alert,
+  CircularProgress,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import HomeIcon from "@mui/icons-material/Home";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import axios from "axios";
 
 const CompanyloginPage = () => {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
   const [loginData, setLoginData] = useState({
-    email: "",
-    registrationNumber: "", // Changed password to registration number
+    companyEmail: "",
+    password: "",
   });
-
   const [errors, setErrors] = useState({
-    email: "",
-    registrationNumber: "", // Updated error state for registration number
+    companyEmail: "",
+    password: "",
   });
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarSeverity, setSnackbarSeverity] = useState("error");
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
 
     // Validate Email
-    if (name === "email") {
+    if (name === "companyEmail") {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(value) && value !== "") {
-        setErrors((prev) => ({
-          ...prev,
-          email: "Please enter a valid email ID.",
-        }));
+        setErrors((prev) => ({ ...prev, companyEmail: "Please enter a valid email ID." }));
       } else {
-        setErrors((prev) => ({ ...prev, email: "" }));
+        setErrors((prev) => ({ ...prev, companyEmail: "" }));
       }
     }
 
-    // Validate Registration Number
-    if (name === "registrationNumber") {
+    // Validate Password
+    if (name === "password") {
       if (value.length < 6 && value !== "") {
         setErrors((prev) => ({
           ...prev,
-          registrationNumber:
-            "Registration number must be at least 6 characters.",
+          password: "Password must be at least 6 characters.",
         }));
       } else {
-        setErrors((prev) => ({ ...prev, registrationNumber: "" }));
+        setErrors((prev) => ({ ...prev, password: "" }));
       }
     }
 
     setLoginData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    if (errors.email || errors.registrationNumber) {
-      alert("Please fix the errors before logging in.");
+
+    if (errors.companyEmail || errors.password) {
+      setOpenSnackbar(true);
+      setSnackbarSeverity("error");
+      setSnackbarMessage("Please fix the errors before logging in.");
       return;
     }
 
-    // Perform login logic here
-    alert(
-      `Logged in with Email: ${loginData.email} and Registration Number: ${loginData.registrationNumber}`
-    );
-    console.log("Login Data:", loginData);
+    setIsLoading(true);
+    try {
+      const response = await axios.post("https://my-elegant-backend-api.onrender.com/company/login", loginData);
+  
+      // Check status and handle token
+      if (response.status === 200) {
+        const { message, token } = response.data;
+  
+        setOpenSnackbar(true);
+        setSnackbarSeverity("success");
+        setSnackbarMessage(message);
+  
+        // Store the token
+        localStorage.setItem("authToken", token);
+  
+        // Navigate to dashboard
+        navigate("/Companydashboard");
+      }  else {
+        // Handle cases where the response doesn't indicate success
+        setOpenSnackbar(true);
+        setSnackbarSeverity("error");
+        setSnackbarMessage(response.data.message || "Invalid email or password.");
+    } 
+    } catch (error) {
+      const errorMessage =
+        error.response?.status === 401 || error.response?.status === 500
+          ? "Invalid email or password."
+          : "An error occurred while logging in. Please try again.";
+      console.error("Error during login:", error.message);
+      setOpenSnackbar(true);
+      setSnackbarSeverity("error");
+      setSnackbarMessage(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setOpenSnackbar(false);
+  };
+
+  const handleTogglePasswordVisibility = () => {
+    setShowPassword((prev) => !prev);
   };
 
   return (
-
     <>
-     <AppBar position="sticky" color="primary">
+      <AppBar position="sticky" color="primary">
         <Toolbar>
           <Box sx={{ display: "flex", alignItems: "center", flexGrow: 1 }}>
             <IconButton color="inherit" onClick={() => navigate("/")}>
@@ -93,83 +141,99 @@ const CompanyloginPage = () => {
         </Toolbar>
       </AppBar>
 
-
-    <Box
-      sx={{
-        maxWidth: 400,
-        margin: "50px auto",
-        padding: 4,
-        border: "1px solid #ddd",
-        borderRadius: 3,
-        backgroundColor: "#fff",
-        boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
-      }}
-    >
-      <Typography
-        variant="h5"
-        sx={{ fontWeight: 600, marginBottom: 2, textAlign: "center" }}
+      <Box
+        sx={{
+          maxWidth: 400,
+          margin: "50px auto",
+          padding: 4,
+          border: "1px solid #ddd",
+          borderRadius: 3,
+          backgroundColor: "#fff",
+          boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
+        }}
       >
-        Login
-      </Typography>
-      <form onSubmit={handleLogin}>
-        <Grid container spacing={3}>
-          {/* Email */}
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              required
-              type="email"
-              label="Email ID"
-              placeholder="Enter your email"
-              name="email"
-              value={loginData.email}
-              onChange={handleChange}
-              error={!!errors.email}
-              helperText={errors.email}
-            />
-          </Grid>
-          {/* Registration Number */}
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              required
-              type="text"
-              label="Registration Number"
-              placeholder="Enter your registration number"
-              name="registrationNumber"
-              value={loginData.registrationNumber}
-              onChange={handleChange}
-              error={!!errors.registrationNumber}
-              helperText={errors.registrationNumber}
-            />
-          </Grid>
-          {/* Login Button */}
-          <Grid item xs={12} sx={{ textAlign: "center" }}>
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              size="large"
-            >
-              Login
-            </Button>
-          </Grid>
-
-          <Grid item xs={12} sx={{ textAlign: "center", marginTop: 0 }}>
-            <Typography variant="body2">
-              New user?{" "}
+        <Typography
+          variant="h5"
+          sx={{ fontWeight: 600, marginBottom: 2, textAlign: "center" }}
+        >
+          Login
+        </Typography>
+        <form onSubmit={handleLogin}>
+          <Grid container spacing={3}>
+            {/* Email */}
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                required
+                type="email"
+                label="Email ID"
+                placeholder="Enter your email"
+                name="companyEmail"
+                value={loginData.companyEmail}
+                onChange={handleChange}
+                error={!!errors.companyEmail}
+                helperText={errors.companyEmail}
+              />
+            </Grid>
+            {/* Password */}
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                required
+                label="Password"
+                type={showPassword ? "text" : "password"}
+                name="password"
+                value={loginData.password}
+                onChange={handleChange}
+                error={!!errors.password}
+                helperText={errors.password}
+                InputProps={{
+                  endAdornment: (
+                    <IconButton onClick={handleTogglePasswordVisibility} edge="end">
+                      {showPassword ? <Visibility /> : <VisibilityOff />}
+                    </IconButton>
+                  ),
+                }}
+              />
+            </Grid>
+            {/* Login Button */}
+            <Grid item xs={12} sx={{ textAlign: "center" }}>
               <Button
-                style={{ color: "blue" }}
-                onClick={() => navigate("/Companyregistration")}
-                sx={{ textTransform: "full-size-kana", padding: 0 }}
+                type="submit"
+                variant="contained"
+                color="primary"
+                size="large"
+                disabled={isLoading}
               >
-                Signup
+                {isLoading ? <CircularProgress size={24} color="inherit" /> : "Login"}
               </Button>
-            </Typography>
+            </Grid>
+
+            <Grid item xs={12} sx={{ textAlign: "center", marginTop: 0 }}>
+              <Typography variant="body2">
+                New user?{" "}
+                <Button
+                  style={{ color: "blue" }}
+                  onClick={() => navigate("/Companyregistration")}
+                  sx={{ textTransform: "full-size-kana", padding: 0 }}
+                >
+                  Signup
+                </Button>
+              </Typography>
+            </Grid>
           </Grid>
-        </Grid>
-      </form>
-    </Box>
+        </form>
+      </Box>
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </>
   );
 };

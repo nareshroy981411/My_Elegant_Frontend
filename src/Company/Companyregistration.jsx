@@ -1,102 +1,190 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
+  Box,
+  Typography,
   TextField,
   Button,
   Grid,
-  Typography,
-  Box,
-  useTheme,
+  IconButton,
   AppBar,
   Toolbar,
-  IconButton,
-} from "@mui/material";
-import HomeIcon from "@mui/icons-material/Home";
-import { useNavigate } from "react-router-dom";
+  Snackbar,
+  Alert,
+} from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import HomeIcon from '@mui/icons-material/Home';
+import axios from 'axios';
 
 const CompanyRegistrationPage = () => {
   const navigate = useNavigate();
-  const theme = useTheme();
   const [formData, setFormData] = useState({
-    companyName: "",
-    email: "",
-    companyStartDate: "",
-    registrationNumber: "",
-    location: "",
-    companyWebsite: "",
-    aboutCompany: "",
+    companyName: '',
+    companyEmail: '',
+    companyEstablishedDate: '',
+    companyRegistrationNumber: '',
+    companyWebsiteLink: '',
+    password: '',
+    aboutCompany: '',
+    location: '',
   });
 
   const [errors, setErrors] = useState({
-    companyWebsite: "",
-    registrationNumber: "",
+    companyName: '',
+    companyEmail: '',
+    companyEstablishedDate: '',
+    companyRegistrationNumber: '',
+    companyWebsiteLink: '',
+    password: '',
+    aboutCompany: '',
+    location: '',
   });
+
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
-    // URL validation for Company Website
-    if (name === "companyWebsite") {
-      const urlRegex =
-        /^(https?:\/\/)?(www\.)?([a-zA-Z0-9\-]+\.)+[a-zA-Z]{2,}(\/[^\s]*)?$/;
-      if (!urlRegex.test(value) && value !== "") {
-        setErrors((prev) => ({
-          ...prev,
-          companyWebsite:
-            "Please enter a valid URL (e.g., https://example.com)",
-        }));
-      } else {
-        setErrors((prev) => ({ ...prev, companyWebsite: "" }));
-      }
-    }
-
-    // Validation for Registration Number
-    if (name === "registrationNumber") {
-      const alphaNumericRegex = /^[a-zA-Z0-9]*$/;
-      if (!alphaNumericRegex.test(value)) {
-        setErrors((prev) => ({
-          ...prev,
-          registrationNumber:
-            "Registration Number must only contain letters and numbers.",
-        }));
-      } else {
-        setErrors((prev) => ({ ...prev, registrationNumber: "" }));
-      }
-    }
+  
+    // Validate fields
+    switch (name) {
+      case 'companyEmail':
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(value) && value !== '') {
+          setErrors((prev) => ({ ...prev, companyEmail: 'Please enter a valid email address.' }));
+        } else {
+          setErrors((prev) => ({ ...prev, companyEmail: '' }));
+        }
+        break;
+      case 'companyWebsiteLink':
+        const urlRegex = /^(https?:\/\/)?(www\.)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\/[^ ]*)?$/;
+        if (!urlRegex.test(value) && value !== '') {
+          setErrors((prev) => ({ ...prev, companyWebsiteLink: 'Please enter a valid URL.' }));
+        } else {
+          setErrors((prev) => ({ ...prev, companyWebsiteLink: '' }));
+        }
+        break;
+      case 'companyRegistrationNumber':
+        const alphaNumericRegex = /^[a-zA-Z0-9]*$/;
+        if (!alphaNumericRegex.test(value)) {
+          setErrors((prev) => ({
+            ...prev,
+            companyRegistrationNumber: 'Registration Number must only contain letters and numbers.',
+          }));
+        } else {
+          setErrors((prev) => ({ ...prev, companyRegistrationNumber: '' }));
+        }
+        break;
+      case 'password':
+        // Add password validation (e.g., minimum length, complexity)
+        if (value.length < 6) {
+          setErrors((prev) => ({
+            ...prev,
+            password: 'Password must be at least 8 characters long.',
+          }));
+        } else {
+          setErrors((prev) => ({ ...prev, password: '' }));
+        }
+        break;
+      case 'location':
+      case 'aboutCompany':
+        if (value.trim() === '') {
+          setErrors((prev) => ({ ...prev, [name]: 'This field is required.' }));
+        } else {
+          setErrors((prev) => ({ ...prev, [name]: '' }));
+        }
+        break;
+      default:
+        break;
+    };
 
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (errors.companyWebsite || errors.registrationNumber) {
-      alert("Please correct the errors before submitting.");
+    // Check for empty fields and validation errors
+    if (
+      Object.values(formData).some((value) => value === '') ||
+      Object.values(errors).some((error) => error !== '')
+    ) {
+      setOpenSnackbar(true);
+      setSnackbarSeverity('error');
+      setSnackbarMessage('Please fill in all fields correctly.');
       return;
     }
 
-    console.log("Submitted Data:", formData);
-    alert("Registration Successful!");
+    try {
+      const response = await axios.post(
+        'https://my-elegant-backend-api.onrender.com/company/register',
+        formData,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          mode: "no-cors",
+        }
+      );
+
+      if (response.status === 201) { // Assuming 201 Created status code for successful registration
+        setOpenSnackbar(true);
+        setSnackbarSeverity('success');
+        setSnackbarMessage('Registration Successful!');
+        navigate('/Companylogin');
+        setFormData({
+          companyName: '',
+          companyEmail: '',
+          companyEstablishedDate: '',
+          companyRegistrationNumber: '',
+          companyWebsiteLink: '',
+          password: '',
+          aboutCompany: '',
+          location: '',
+        });
+      } else {
+        setOpenSnackbar(true);
+        setSnackbarSeverity('error');
+        setSnackbarMessage('Registration Failed. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error:', error.response?.data || error.message);
+      
+      if (error.response && error.response.status === 400 || 500) {
+        setOpenSnackbar(true);
+        setSnackbarSeverity('error');
+        setSnackbarMessage('Company with this email or Registration no already registered.');
+      } else {
+        setOpenSnackbar(true);
+        setSnackbarSeverity('error');
+        setSnackbarMessage('An error occurred while registering. Please try again.');
+      }
+    }
+  };
+
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpenSnackbar(false);
   };
 
   return (
     <>
       <AppBar position="sticky" color="primary">
         <Toolbar>
-          <Box sx={{ display: "flex", alignItems: "center", flexGrow: 1 }}>
-            <IconButton color="inherit" onClick={() => navigate("/")}>
+          <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
+            <IconButton color="inherit" onClick={() => navigate('/')}>
               <HomeIcon fontSize="large" />
             </IconButton>
             <Typography variant="h5" component="div" sx={{ marginRight: 1 }}>
               RealEstatePro
             </Typography>
           </Box>
-          <Button color="inherit" onClick={() => navigate("/Companylogin")}>
+          <Button color="inherit" onClick={() => navigate('/Companylogin')}>
             Login
           </Button>
-          <Button
-            color="inherit"
-            onClick={() => navigate("/Companyregistration")}
-          >
+          <Button color="inherit" onClick={() => navigate('/Companyregistration')}>
             SignUp
           </Button>
         </Toolbar>
@@ -104,18 +192,18 @@ const CompanyRegistrationPage = () => {
       <Box
         sx={{
           maxWidth: 600,
-          margin: "50px auto",
+          margin: '50px auto',
           padding: 4,
-          boxShadow: theme.shadows[4],
+          boxShadow: (theme) => theme.shadows[4],
           borderRadius: 3,
-          backgroundColor: theme.palette.background.paper,
+          backgroundColor: (theme) => theme.palette.background.paper,
         }}
       >
         <Typography
           variant="h4"
           gutterBottom
           align="center"
-          sx={{ color: theme.palette.primary.main, marginBottom: 3 }}
+          sx={{ color: (theme) => theme.palette.primary.main, marginBottom: 3 }}
         >
           Company Registration
         </Typography>
@@ -129,9 +217,11 @@ const CompanyRegistrationPage = () => {
                 name="companyName"
                 value={formData.companyName}
                 onChange={handleChange}
+                error={!!errors.companyName}
+                helperText={errors.companyName}
                 sx={{
-                  "& .MuiInputBase-root": {
-                    backgroundColor: theme.palette.background.default,
+                  '& .MuiInputBase-root': {
+                    backgroundColor: (theme) => theme.palette.background.default,
                   },
                 }}
               />
@@ -141,13 +231,15 @@ const CompanyRegistrationPage = () => {
                 fullWidth
                 required
                 type="email"
-                label="Email"
-                name="email"
-                value={formData.email}
+                label="Company Email"
+                name="companyEmail"
+                value={formData.companyEmail}
                 onChange={handleChange}
+                error={!!errors.companyEmail}
+                helperText={errors.companyEmail}
                 sx={{
-                  "& .MuiInputBase-root": {
-                    backgroundColor: theme.palette.background.default,
+                  '& .MuiInputBase-root': {
+                    backgroundColor: (theme) => theme.palette.background.default,
                   },
                 }}
               />
@@ -158,15 +250,13 @@ const CompanyRegistrationPage = () => {
                 required
                 type="date"
                 label="Company Established Date"
-                name="companyStartDate"
-                value={formData.companyStartDate}
+                name="companyEstablishedDate"
+                value={formData.companyEstablishedDate}
                 onChange={handleChange}
-                InputLabelProps={{
-                  shrink: true,
-                }}
+                InputLabelProps={{ shrink: true }}
                 sx={{
-                  "& .MuiInputBase-root": {
-                    backgroundColor: theme.palette.background.default,
+                  '& .MuiInputBase-root': {
+                    backgroundColor: (theme) => theme.palette.background.default,
                   },
                 }}
               />
@@ -175,15 +265,69 @@ const CompanyRegistrationPage = () => {
               <TextField
                 fullWidth
                 required
-                label="Registration Number"
-                name="registrationNumber"
-                value={formData.registrationNumber}
+                label="Company Registration Number"
+                name="companyRegistrationNumber"
+                value={formData.companyRegistrationNumber}
                 onChange={handleChange}
-                error={!!errors.registrationNumber}
-                helperText={errors.registrationNumber}
+                error={!!errors.companyRegistrationNumber}
+                helperText={errors.companyRegistrationNumber}
                 sx={{
-                  "& .MuiInputBase-root": {
-                    backgroundColor: theme.palette.background.default,
+                  '& .MuiInputBase-root': {
+                    backgroundColor: (theme) => theme.palette.background.default,
+                  },
+                }}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                required
+                label="Company Website Link"
+                name="companyWebsiteLink"
+                value={formData.companyWebsiteLink}
+                onChange={handleChange}
+                error={!!errors.companyWebsiteLink}
+                helperText={errors.companyWebsiteLink}
+                sx={{
+                  '& .MuiInputBase-root': {
+                    backgroundColor: (theme) => theme.palette.background.default,
+                  },
+                }}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                required
+                label="Password"
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                error={!!errors.password}
+                helperText={errors.password}
+                sx={{
+                  '& .MuiInputBase-root': {
+                    backgroundColor: (theme) => theme.palette.background.default,
+                  },
+                }}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                required
+                label="About Company"
+                multiline
+                rows={4}
+                name="aboutCompany"
+                value={formData.aboutCompany}
+                onChange={handleChange}
+                error={!!errors.aboutCompany}
+                helperText={errors.aboutCompany}
+                sx={{
+                  '& .MuiInputBase-root': {
+                    backgroundColor: (theme) => theme.palette.background.default,
                   },
                 }}
               />
@@ -196,76 +340,37 @@ const CompanyRegistrationPage = () => {
                 name="location"
                 value={formData.location}
                 onChange={handleChange}
+                error={!!errors.location}
+                helperText={errors.location}
                 sx={{
-                  "& .MuiInputBase-root": {
-                    backgroundColor: theme.palette.background.default,
+                  '& .MuiInputBase-root': {
+                    backgroundColor: (theme) => theme.palette.background.default,
                   },
                 }}
               />
             </Grid>
             <Grid item xs={12}>
-              <TextField
-                fullWidth
-                required
-                label="Company Website"
-                name="companyWebsite"
-                value={formData.companyWebsite}
-                onChange={handleChange}
-                error={!!errors.companyWebsite}
-                helperText={errors.companyWebsite}
-                sx={{
-                  "& .MuiInputBase-root": {
-                    backgroundColor: theme.palette.background.default,
-                  },
-                }}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                multiline
-                rows={4}
-                label="About Company"
-                name="aboutCompany"
-                value={formData.aboutCompany}
-                onChange={handleChange}
-                sx={{
-                  "& .MuiInputBase-root": {
-                    backgroundColor: theme.palette.background.default,
-                  },
-                }}
-              />
-            </Grid>
-            <Grid item xs={12} sx={{ textAlign: "center", marginTop: 2 }}>
               <Button
-                type="submit"
                 variant="contained"
                 color="primary"
-                size="large"
-                sx={{
-                  padding: "10px 30px",
-                  fontSize: "16px",
-                  textTransform: "none",
-                }}
+                type="submit"
+                fullWidth
               >
                 Register
               </Button>
             </Grid>
-
-            <Grid item xs={12} sx={{ textAlign: "center", marginTop: 0 }}>
-              <Typography variant="body2">
-                Already Regis?{" "}
-                <Button
-                  style={{ color: "blue" }}
-                  onClick={() => navigate("/Companylogin")}
-                  sx={{ textTransform: "full-size-kana", padding: 0 }}
-                >
-                  Login
-                </Button>
-              </Typography>
-            </Grid>
           </Grid>
         </form>
+        <Snackbar
+          open={openSnackbar}
+          autoHideDuration={6000}
+          onClose={handleSnackbarClose}
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        >
+          <Alert onClose={handleSnackbarClose} severity={snackbarSeverity}>
+            {snackbarMessage}
+          </Alert>
+        </Snackbar>
       </Box>
     </>
   );
