@@ -16,7 +16,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const Addtojob = () => {
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const [jobDetails, setJobDetails] = useState({
     category: "",
@@ -109,7 +109,6 @@ const Addtojob = () => {
         });
         return;
       }
-      console.log(token);
       const response = await axios.post(
         "http://localhost:5000/jobs/createJob",
         jobDetails,
@@ -157,7 +156,7 @@ const Addtojob = () => {
   };
 
   const handleCancel = () => {
-    // navigate(-1);
+    navigate(-1);
   };
 
   return (
