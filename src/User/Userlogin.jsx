@@ -69,13 +69,13 @@ const UserLoginPage = () => {
 
   return (
     <>
-      <AppBar position="sticky" color="primary">
+      <AppBar position="sticky" color="primary" style={{backgroundColor: "rgb(228, 45, 64)"}}>
         <Toolbar>
           <Box sx={{ display: "flex", alignItems: "center", flexGrow: 1 }}>
             <IconButton color="inherit" onClick={() => navigate("/")}>
               <HomeIcon fontSize="large" />
             </IconButton>
-            <Typography variant="h5" sx={{ marginRight: 1 }}>
+            <Typography variant="h4" sx={{ marginRight: 1 ,flexGrow: 1,fontFamily:"Times New Roman", }}>
               RealEstatePro
             </Typography>
           </Box>
@@ -94,9 +94,18 @@ const UserLoginPage = () => {
           boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
         }}
       >
-        <Typography variant="h5" sx={{ fontWeight: 600, marginBottom: 2, textAlign: "center" }}>
+        <Typography variant="h5" sx={{ fontWeight: 600, marginBottom: 2, textAlign: "center" ,animation: "colorChange 3s infinite"}}>
           Login
         </Typography>
+        <style>
+        {`
+          @keyframes colorChange {
+            0% {color: rgb(71, 221, 255)}
+            50% {color:rgb(255, 151, 71); /* Change to a different color (e.g., Tomato) */}
+            100% {color:rgb(212, 55, 230);
+          }
+        `}
+      </style>
         <form onSubmit={handleLogin}>
           <Grid container spacing={3}>
             <Grid item xs={12}>
@@ -137,7 +146,7 @@ const UserLoginPage = () => {
               />
             </Grid>
             <Grid item xs={12} sx={{ textAlign: "center" }}>
-              <Button type="submit" variant="contained" color="primary" size="large">
+              <Button type="submit" variant="contained" color="primary"  sx={{backgroundColor: "rgb(228, 45, 64)"}} size="large">
                 Login
               </Button>
             </Grid>

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import {
   AppBar,
@@ -15,6 +16,7 @@ import {
   MenuItem,
   Button,
 } from "@mui/material";
+import { LocationOn, Email, Phone, Facebook, Twitter, Instagram, LinkedIn } from '@mui/icons-material';
 import { deepPurple } from "@mui/material/colors";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -28,16 +30,18 @@ const CompanyDashboard = () => {
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
+    console.log("Token:", token);
     if (!token) {
       navigate("/Companylogin");
     } else {
       fetchJobs();
     }
+    fetchJobs();
   }, []);
   
   const fetchJobs = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/jobs/getJobsByCompany", {
+      const response = await axios.get("https://my-elegant-backend-api.onrender.com/jobs/getJobsByCompany", {
         headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` },
       });
   
@@ -64,11 +68,11 @@ const CompanyDashboard = () => {
 
   const deleteJob = async (jobId) => {
     try {
-      console.log(`Attempting to delete job with ID: ${jobId}`);
+      console.log( `Attempting to delete job with ID: ${jobId}`);
   
       // Sending a DELETE request to the API endpoint
-      const res = await axios.delete(`http://localhost:5000/jobs/job/${jobId}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` },
+      const res = await axios.delete(`https://my-elegant-backend-api.onrender.com/jobs/Job/${jobId}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("authToken")} `},
       });
   
       if (res.status === 200) {
@@ -114,7 +118,7 @@ const CompanyDashboard = () => {
     console.log("Fetching job with ID:", jobId);
   
     try {
-      const res = await axios.get(`http://localhost:5000/jobs/getJob/${jobId}`, {
+      const res = await axios.get(`https://my-elegant-backend-api.onrender.com/jobs/getJob/${jobId}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` },
       });
   
@@ -132,8 +136,6 @@ const CompanyDashboard = () => {
   };
   
   
-  
-  
 
   if (selectedJob) {
     return (
@@ -142,7 +144,7 @@ const CompanyDashboard = () => {
           <Typography variant="h4" gutterBottom>
             Job Details
           </Typography>
-          <Card sx={{ padding: 2, borderRadius: 2, boxShadow: 3 }}>
+          <Card sx={{ padding: 2, borderRadius: 2, boxShadow: 3,backgroundColor:"rgb (255, 248, 226)" }} >
             <CardContent>
               <Typography variant="h6" gutterBottom>
                 {selectedJob?.title || "N/A"}
@@ -207,19 +209,19 @@ const CompanyDashboard = () => {
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       {/* Navbar */}
-      <AppBar position="static" sx={{ backgroundColor: "#1976d2" }}>
-        <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
-          <Typography variant="h5" component="div">
+      <AppBar position="static" sx={{ backgroundColor: "rgb(228, 45, 64)"}}>
+        <Toolbar sx={{ display: "flex", justifyContent: "space-between", }}>
+          <Typography variant="h4" component="div" sx={{fontFamily:"Times New Roman",}}>
             RealEstatePro
           </Typography>
+          <Box sx={{ display: "flex", alignItems: "center" }}>
           <Button
             color="inherit"
             onClick={() => navigate("/applieduser")}
-            sx={{ display: "flex", alignItems: "right" }}
+            sx={{ fontFamily:"Times New Roman",fontSize:"1rem",marginRight:"10px"}}
           >
             Applicants
           </Button>
-          <Box sx={{ display: "flex", alignItems: "center" }}>
             <Avatar
               sx={{
                 bgcolor: deepPurple[500],
@@ -265,18 +267,27 @@ const CompanyDashboard = () => {
           padding: 4,
         }}
       >
-        <Typography variant="h4" sx={{ mb: 4 }}>
+        <Typography variant="h4" sx={{ mb: 4, animation: "colorChange 3s infinite", }}>
           Welcome to the Company Dashboard
         </Typography>
+        <style>
+        {`
+          @keyframes colorChange {
+            0% {color: rgb(71, 221, 255)}
+            50% {color:rgb(255, 151, 71); /* Change to a different color (e.g., Tomato) */}
+            100% {color:rgb(212, 55, 230);
+          }
+        `}
+      </style>
 
         {/* Job Cards or No Job Message */}
         {jobs.length > 0 ? (
           <Grid container spacing={3}>
             {jobs.map((job) => (
-              console.log(job),
               <Grid item xs={12} sm={6} md={4} key={job._id}>
                 <Card
                   sx={{
+                    backgroundColor:"rgb(239, 222, 136)",
                     transition: "transform 0.3s, box-shadow 0.3s",
                     "&:hover": {
                       transform: "scale(1.05)",
@@ -313,12 +324,99 @@ const CompanyDashboard = () => {
           variant="contained"
           color="primary"
           size="large"
-          sx={{ mt: 4 }}
+          sx={{ mt: 4 ,borderRadius:"20px",backgroundColor:"rgb(239, 47, 47)"}}
           onClick={() => navigate("/Addtojob")}
         >
           Add New Job
         </Button>
       </Container>
+
+      {/* footer */}
+       <Box sx={{backgroundColor: "rgb(228, 45, 64)", color: "#fff", py: 4, px: 2 }}>
+          <Grid container justifyContent="space-evenly" alignItems="flex-start">
+            {/* Company Details */}
+            <Grid item xs={12} sm={3}>
+              <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2 }}>
+                Company Details
+              </Typography>
+              <Typography>RealEstate Co.</Typography>
+              <Typography>Building Dreams, One Home at a Time.</Typography>
+              <Typography>www.realestate.com</Typography>
+            </Grid>
+      
+            {/* Contact Info */}
+            <Grid item xs={12} sm={3}>
+              <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2 }}>
+                Contact Info
+              </Typography>
+              <Box display="flex" alignItems="center" mb={1}>
+                <LocationOn sx={{ mr: 1 }} /> <Typography>123 RealEstate Ave, City, Country</Typography>
+              </Box>
+              <Box display="flex" alignItems="center" mb={1}>
+                <Email sx={{ mr: 1 }} /> <Typography>contact@realestate.com</Typography>
+              </Box>
+              <Box display="flex" alignItems="center" mb={1}>
+                <Phone sx={{ mr: 1 }} /> <Typography>+1 234-567-8900</Typography>
+              </Box>
+            </Grid>
+      
+            {/* Social Links */}
+            <Grid item xs={12} sm={3}>
+              <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2 }}>
+                Social Links
+              </Typography>
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "left",
+                  gap: 2,
+                }}
+              >
+                {[
+                  { icon: <Facebook />, link: "https://facebook.com", color: "#1877F2" },
+                  { icon: <Twitter />, link: "https://twitter.com", color: "#1DA1F2" },
+                  { icon: <Instagram />, link: "https://instagram.com", color: "linear-gradient(45deg, #FF0099, #FF9933)" },
+                  { icon: <LinkedIn />, link: "https://linkedin.com", color: "#0077B5" },
+                ].map((platform, index) => (
+                  <a
+                    key={index}
+                    href={platform.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ textDecoration: "none" }}
+                  >
+                    <Box
+                      sx={{
+                        backgroundColor: platform.color.includes("gradient") ? undefined : platform.color,
+                        background: platform.color.includes("gradient") ? platform.color : undefined,
+                        width: 40,
+                        height: 40,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        borderRadius: "50%",
+                        color: "#fff",
+                        boxShadow: "0 4px 10px rgba(0, 0, 0, 0.3)",
+                        transition: "transform 0.3s, box-shadow 0.3s",
+                        "&:hover": {
+                          transform: "scale(1.2)",
+                          boxShadow: "0 6px 15px rgba(0, 0, 0, 0.4)",
+                        },
+                      }}
+                    >
+                      {platform.icon}
+                    </Box>
+                  </a>
+                ))}
+              </Box>
+            </Grid>
+          </Grid>
+      
+          {/* Footer Text */}
+          <Typography variant="body2" sx={{ textAlign: "center", mt: 4 }}>
+            © 2023 All Rights Reserved By RealEstate Co.
+          </Typography>
+        </Box>
     </Box>
   );
 };

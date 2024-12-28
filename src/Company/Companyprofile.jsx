@@ -39,7 +39,7 @@ const CompanyProfile = () => {
     }
     const fetchCompanyData = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/company/profile", {
+        const response = await axios.get("https://my-elegant-backend-api.onrender.com/company/profile", {
           headers: { Authorization: `Bearer ${token}` },
         });
         setCompanyData(response.data);

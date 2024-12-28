@@ -33,16 +33,17 @@ const AppliedJobsPage = () => {
     const fetchAppliedJobs = async () => {
       try {
         const authToken = localStorage.getItem("token");
+        console.log(authToken)
         if (!authToken) {
             navigate("/Userlogin");
         }
-        const response = await axios.get("http://localhost:5000/applied-jobs", {
+        const response = await axios.get("https://my-elegant-backend-api.onrender.com/application/user-appliedJobs", {
           headers: {
             Authorization: `Bearer ${authToken}`,
           },
         });
-        console.log("Fetched applied jobs:", response.data);
-        setJobs(response.data); // Assuming response.data is an array of jobs
+        console.log("Fetched applied jobs:", response.data.application[0].job);
+        setJobs(response.data.application); 
       } catch (error) {
         console.error("Error fetching applied jobs:", error);
       } finally {
@@ -59,12 +60,13 @@ const AppliedJobsPage = () => {
 
   const handleProfile = () => {
     // Navigate to the profile page
-    navigate("/profile");
+    navigate("/Userprofile");
     setAnchorEl(null);
   };
 
   const handleLogout = () => {
     // Implement logout functionality
+    navigate("/Userlogin");
     setAnchorEl(null);
   };
 
@@ -119,18 +121,19 @@ const AppliedJobsPage = () => {
           <Typography variant="body1">No applied jobs found.</Typography>
         ) : (
           <List>
-            {jobs.map((job) => (
+            {jobs.map((job,ind) => (
+              // console.log("myjobs",job.job?.company==null?"null":job.job?.company.companyName)
               <Card key={job.id} sx={{ marginBottom: 2 }}>
                 <CardContent>
                   <Typography variant="h6">{job.job?.title}</Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Company: {job.job?.companyName}
+                    Company: {job.job?.company==null?"my company":job.job?.company.companyName}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
                     Location: {job.job?.location}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Employment Type: {job.job?.employmentType}
+                    Employment Type: {job.job?.employementType}
                   </Typography>
                 </CardContent>
               </Card>

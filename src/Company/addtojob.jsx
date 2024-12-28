@@ -110,7 +110,7 @@ const Addtojob = () => {
         return;
       }
       const response = await axios.post(
-        "http://localhost:5000/jobs/createJob",
+        "https://my-elegant-backend-api.onrender.com/jobs/createJob",
         jobDetails,
         {
           headers: {
@@ -431,6 +431,7 @@ const Addtojob = () => {
         open={snackbar.open}
         autoHideDuration={3000}
         onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
       >
         <Alert onClose={handleSnackbarClose} severity={snackbar.severity} sx={{ width: "100%" }}>
           {snackbar.message}

@@ -90,7 +90,7 @@ const UserRegistrationForm = () => {
 
   return (
     <>
-      <AppBar position="sticky" color="primary">
+      <AppBar position="sticky" color="primary" style={{backgroundColor: "rgb(228, 45, 64)"}}>
         <Toolbar>
           <IconButton color="inherit" onClick={() => navigate("/")}>
             <HomeIcon />
@@ -119,10 +119,20 @@ const UserRegistrationForm = () => {
       >
         <Typography
           variant="h5"
-          sx={{ fontWeight: 600, mb: 2, textAlign: "center" }}
+          sx={{ fontWeight: 600, mb: 2, textAlign: "center" ,animation: "colorChange 3s infinite"}}
         >
           MyElegant SignUp
         </Typography>
+        <style>
+        {`
+          @keyframes colorChange {
+            0% {color: rgb(71, 221, 255)}
+            50% {color:rgb(255, 151, 71); /* Change to a different color (e.g., Tomato) */}
+            75% {color:rgb(148, 141, 151);
+            100% {color:rgb(212, 55, 230);
+          }
+        `}
+      </style>
 
         <form onSubmit={handleSubmit}>
           <Grid container spacing={3}>
@@ -187,7 +197,7 @@ const UserRegistrationForm = () => {
             </Grid>
 
             <Grid item xs={12} textAlign="center">
-              <Button type="submit" variant="contained" color="primary" size="large">
+              <Button type="submit" variant="contained" color="primary" size="large" style={{backgroundColor: "rgb(228, 45, 64)"}}>
                 SignUp
               </Button>
             </Grid>

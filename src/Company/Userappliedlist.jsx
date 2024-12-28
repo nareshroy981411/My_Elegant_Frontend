@@ -36,17 +36,32 @@ const AppliedUser = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
    const navigate = useNavigate(); // Hook for navigation
 
-  useEffect(() => {
+   useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    console.log(token)
+    if (!token) {
+      navigate("/Companylogin");
+      return; 
+    }
+  
     const fetchUsers = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/applied-jobs");
-        setUsers(response.data);
+        const response = await axios.get(
+          "https://my-elegant-backend-api.onrender.com/application/getApplicationByCompany",
+          {
+            headers: { Authorization:`Bearer ${token}` },
+          }
+        );
+        console.log(response.data.data)
+        setUsers(response.data.data);
       } catch (error) {
         console.error("Error fetching users:", error);
       }
     };
+  
     fetchUsers();
-  }, []);
+  }, [navigate]); 
+  
 
   const handleAvatarClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -154,6 +169,7 @@ const AppliedUser = () => {
         <Grid container spacing={3}>
           {users.length > 0 ? (
             users.map((user) => (
+              // console.log(user.job.title)
               <Grid item xs={12} sm={6} md={4} key={user.id}>
                 <Card
                   sx={{
@@ -173,19 +189,19 @@ const AppliedUser = () => {
                       gutterBottom
                       sx={{ fontWeight: "bold", color: "#0d47a1" }}
                     >
-                      {user.name}
+                      {user.applicant.fullname}
                     </Typography>
                     <Typography variant="body1" sx={{ mb: 1.5 }}>
-                      <strong>Email:</strong> {user.email}
+                      <strong>Email:</strong> {user.applicant.email}
                     </Typography>
                     <Typography variant="body1" sx={{ mb: 1.5 }}>
-                      <strong>Phone:</strong> {user.phone}
+                      <strong>Phone:</strong> {user.applicant.mobilenumber}
                     </Typography>
                     <Typography
                       variant="body1"
                       sx={{ fontStyle: "italic", color: "#1a237e" }}
                     >
-                      <strong>Job Title:</strong> {user.jobTitle}
+                      <strong>Job Title:</strong> {user.job.title}
                     </Typography>
                   </CardContent>
                 </Card>

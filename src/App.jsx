@@ -13,6 +13,7 @@ import AppliedJobsPage from "./User/Appliedjobs";
 import AppliedUser from "./Company/Userappliedlist";
 import CompanyProfile from "./Company/Companyprofile";
 import AddtoJob from "./Company/addtojob";
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 
 const App = () => {
@@ -31,7 +32,7 @@ const App = () => {
         <Route path="/Userdashboard" element={<Userdashboard />}/>
         <Route path="/Userprofile" element={<Userprofile />}/>
         <Route path="/listed-applied" element={<AppliedJobsPage />} />
-        <Route path="/Userlistedjobs/:category" element={<Userlistedjobs />} />
+        <Route path="/getJobsByCategory/:category" element={<Userlistedjobs />} />
 
     </Routes>
     </BrowserRouter>

@@ -122,17 +122,17 @@ const CompanyloginPage = () => {
 
   return (
     <>
-      <AppBar position="sticky" color="primary">
+      <AppBar position="sticky" style={{backgroundColor: "rgb(228, 45, 64)"}}>
         <Toolbar>
           <Box sx={{ display: "flex", alignItems: "center", flexGrow: 1 }}>
             <IconButton color="inherit" onClick={() => navigate("/")}>
               <HomeIcon fontSize="large" />
             </IconButton>
-            <Typography variant="h5" component="div" sx={{ marginRight: 1 }}>
+            <Typography variant="h4" sx={{ flexGrow: 1,fontFamily:"Times New Roman",marginRight: 1  } }>
               RealEstatePro
             </Typography>
           </Box>
-          <Button color="inherit" onClick={() => navigate("/Companylogin")}>
+          <Button color="inherit"  onClick={() => navigate("/Companylogin")} >
             Login
           </Button>
           <Button color="inherit" onClick={() => navigate("/Companyregistration")}>
@@ -154,10 +154,19 @@ const CompanyloginPage = () => {
       >
         <Typography
           variant="h5"
-          sx={{ fontWeight: 600, marginBottom: 2, textAlign: "center" }}
+          sx={{ fontWeight: 600, marginBottom: 2, textAlign: "center" ,animation: "colorChange 3s infinite",}}
         >
           Login
         </Typography>
+        <style>
+        {`
+          @keyframes colorChange {
+            0% {color: rgb(71, 221, 255)}
+            50% {color:rgb(255, 151, 71); /* Change to a different color (e.g., Tomato) */}
+            100% {color:rgb(212, 55, 230);
+          }
+        `}
+      </style>
         <form onSubmit={handleLogin}>
           <Grid container spacing={3}>
             {/* Email */}
@@ -204,6 +213,7 @@ const CompanyloginPage = () => {
                 color="primary"
                 size="large"
                 disabled={isLoading}
+                style={{backgroundColor: "rgb(228, 45, 64)"}}
               >
                 {isLoading ? <CircularProgress size={24} color="inherit" /> : "Login"}
               </Button>
