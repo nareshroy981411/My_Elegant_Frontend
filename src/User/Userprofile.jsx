@@ -233,7 +233,7 @@ const Userprofile = () => {
             <Typography variant="h6" sx={{ flexGrow: 1 }}>
               Profile
             </Typography>
-            <Button color="inherit" onClick={() => navigate("/Userdashboard")}>
+            <Button color="inherit" onClick={() => navigate(-1)}>
               ✖
             </Button>
           </Toolbar>
@@ -279,12 +279,11 @@ const Userprofile = () => {
             label="Email ID"
             variant="outlined"
             type="email"
-            placeholder="Enter your Email ID"
             fullWidth
             value={userData.email || ""}
-            onChange={(e) =>
-              setUserData({ ...userData, email: e.target.value })
-            }
+            InputProps={{
+              readOnly: true,
+            }}
           />
 
           <FormControl fullWidth>
@@ -292,7 +291,7 @@ const Userprofile = () => {
               label="Password"
               variant="outlined"
               type={showPassword ? "text" : "password"}
-              placeholder="Type new password (optional)"
+              placeholder="Type new password"
               fullWidth
               value={userData.password || ""}
               onChange={(e) =>
@@ -334,7 +333,7 @@ const Userprofile = () => {
             <TextField
               variant="outlined"
               fullWidth
-              placeholder="Enter your skills (e.g., React, Python, SQL)"
+              placeholder="Enter your skills"
               value={skillInput}
               onChange={(e) => setSkillInput(e.target.value)}
               onKeyDown={handleSkillKeyDown}
@@ -399,7 +398,7 @@ const Userprofile = () => {
               <Button
                 variant="outlined"
                 color="white"
-                onClick={() => navigate("/Userdashboard")}
+                onClick={() => navigate(-1)}
               >
                 Cancel
               </Button>

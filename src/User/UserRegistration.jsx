@@ -77,6 +77,7 @@ const UserRegistrationForm = () => {
 
       if (response.status === 201) {
         setSnackbar({ open: true, message: "Registration successful!", severity: "success" });
+        navigate('/Userlogin');
       }
     } catch (error) {
       const errorMessage =
@@ -210,7 +211,7 @@ const UserRegistrationForm = () => {
         open={snackbar.open}
         autoHideDuration={6000}
         onClose={() => setSnackbar({ ...snackbar, open: false })}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
       >
         <Alert
           onClose={() => setSnackbar({ ...snackbar, open: false })}

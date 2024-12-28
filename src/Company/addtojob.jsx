@@ -5,134 +5,438 @@ import {
   Button,
   Container,
   Typography,
+  Grid,
+  Snackbar,
+  Alert,
+  MenuItem,
+  FormControlLabel,
+  Checkbox,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-const Addtojob = ({ onAddJob }) => {
-  const navigate = useNavigate();
+const Addtojob = () => {
+  // const navigate = useNavigate();
+
   const [jobDetails, setJobDetails] = useState({
     category: "",
-    jobTitle: "",
-    qualification: "",
-    keySkills: "",
-    employmentType: "",
-    companyName: "",
-    aboutCompany: "",
+    title: "",
+    description: "",
+    qualification: [],
+    skills: [], 
+    employementType: "",
     location: "",
     salary: "",
-    Experience: "",
-    Position: "",
+    experience: "",
+    position: "",
   });
 
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
+
+  const handleSnackbarClose = () => {
+    setSnackbar({ ...snackbar, open: false });
+  };
+
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, checked, type } = e.target;
 
-    // Validate numeric-only fields
-    if (["salary", "Position"].includes(name)) {
-      if (!/^\d*$/.test(value)) return; // Allow only numbers
+    if (type === "checkbox") {
+      setJobDetails((prev) => ({
+        ...prev,
+        [name]: checked
+          ? [...prev[name], value]
+          : prev[name].filter((item) => item !== value),
+      }));
+    } else {
+      setJobDetails((prev) => ({ ...prev, [name]: value }));
     }
-
-    setJobDetails((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleAdd = async () => {
-    // Check if all fields are filled
+    const {
+      title,
+      description,
+      skills,
+      qualification,
+      salary,
+      location,
+      employementType,
+      category,
+      experience,
+      position,
+    } = jobDetails;
+
     if (
-      !jobDetails.category ||
-      !jobDetails.jobTitle ||
-      !jobDetails.qualification ||
-      !jobDetails.keySkills ||
-      !jobDetails.employmentType ||
-      !jobDetails.companyName ||
-      !jobDetails.aboutCompany ||
-      !jobDetails.location ||
-      !jobDetails.salary ||
-      !jobDetails.Experience ||
-      !jobDetails.Position
+      !category ||
+      !title ||
+      !description ||
+      !skills.length ||
+      !employementType ||
+      !location ||
+      !salary ||
+      !experience ||
+      !position ||
+      !qualification.length
     ) {
-      alert("Please enter all details before adding the job.");
+      setSnackbar({
+        open: true,
+        message: "Please fill in all fields.",
+        severity: "warning",
+      });
+      return;
+    }
+
+    if (isNaN(salary) || isNaN(position) || isNaN(experience)) {
+      setSnackbar({
+        open: true,
+        message: "Salary, Position, and Experience must be numbers.",
+        severity: "error",
+      });
       return;
     }
 
     try {
-      const response = await axios.post("http://localhost:3000/addjob", jobDetails);
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        setSnackbar({
+          open: true,
+          message: "You must be logged in to add a job.",
+          severity: "error",
+        });
+        return;
+      }
+      console.log(token);
+      const response = await axios.post(
+        "http://localhost:5000/jobs/createJob",
+        jobDetails,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (response.status === 201 || response.status === 200) {
-        alert("Job added successfully!");
-        onAddJob(response.data); 
-        navigate("/CompanyDashboard"); 
+        setSnackbar({
+          open: true,
+          message: "Job added successfully!",
+          severity: "success",
+        });
+        setJobDetails({
+          category: "",
+          title: "",
+          description: "",
+          qualification: [],
+          skills: [],
+          employementType: "",
+          location: "",
+          salary: "",
+          experience: "",
+          position: "",
+        });
       } else {
-        alert("Failed to add the job. Please try again.");
+        setSnackbar({
+          open: true,
+          message: "Failed to add the job. Please try again.",
+          severity: "error",
+        });
       }
     } catch (error) {
       console.error("Error adding the job:", error);
-      alert("An error occurred while adding the job.");
+      setSnackbar({
+        open: true,
+        message: "An error occurred while adding the job.",
+        severity: "error",
+      });
     }
   };
 
   const handleCancel = () => {
-    navigate("/CompanyDashboard"); 
+    // navigate(-1);
   };
 
   return (
-    <Container maxWidth="sm">
+    <Container maxWidth="lg" sx={{ mt: 5 }}>
       <Box
-        component="form"
         sx={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          backgroundColor: "#f9f9f9",
+          background:
+            "linear-gradient(to bottom right, rgb(101, 146, 166), rgb(231, 233, 237))",
           padding: 4,
-          borderRadius: 2,
-          boxShadow: 3,
-          mt: 4,
+          borderRadius: 3,
+          boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
         }}
       >
-        <Typography variant="h4" sx={{ mb: 3 }}>
+        <Typography
+          variant="h4"
+          sx={{
+            mb: 3,
+            textAlign: "center",
+            fontWeight: "bold",
+            color: "black",
+          }}
+        >
           Add New Job
         </Typography>
 
-        {[
-          { label: "Category", name: "category" },
-          { label: "Job Title", name: "jobTitle" },
-          { label: "Qualification", name: "qualification" },
-          { label: "Key Skills", name: "keySkills" },
-          { label: "Employment Type", name: "employmentType" },
-          { label: "Company Name", name: "companyName" },
-          { label: "Experience", name: "Experience" },
-          { label: "Position", name: "Position" },
-          { label: "Salary", name: "salary" },
-          { label: "About Company", name: "aboutCompany" },
-          { label: "Location", name: "location" },
-        ].map(({ label, name }) => (
-          <TextField
-            key={name}
-            variant="filled"
-            label={label}
-            name={name}
-            value={jobDetails[name]}
-            onChange={handleChange}
-            fullWidth
-            multiline={name !== "salary" && name !== "Position"}
-            sx={{ mb: 2 }}
-            type={["salary", "Position"].includes(name) ? "number" : "text"}
-          />
-        ))}
+        <Grid container spacing={3}>
+          {/* Category */}
+          <Grid item xs={12} sm={6} md={4}>
+            <TextField
+              select
+              label="Category"
+              name="category"
+              value={jobDetails.category}
+              onChange={handleChange}
+              fullWidth
+              variant="outlined"
+              sx={{ bgcolor: "#f4f6f8", borderRadius: 1 }}
+            >
+              {[
+                "Digital",
+                "Operations",
+                "HR",
+                "Marketing",
+                "Sales Team",
+                "Manager",
+                "Software Engineer",
+              ].map((option) => (
+                <MenuItem key={option} value={option}>
+                  {option}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Grid>
 
-        {/* Action Buttons */}
-        <Box
-          sx={{ display: "flex", justifyContent: "space-between", width: "100%", mt: 2 }}
-        >
-          <Button variant="contained" color="primary" onClick={handleAdd}>
-            Add
-          </Button>
-          <Button variant="outlined" color="secondary" onClick={handleCancel}>
-            Cancel
-          </Button>
-        </Box>
+          {/* Job Title */}
+          <Grid item xs={12} sm={6} md={4}>
+            <TextField
+              label="Job Title"
+              name="title"
+              value={jobDetails.title}
+              onChange={handleChange}
+              fullWidth
+              variant="outlined"
+              sx={{ bgcolor: "#f4f6f8", borderRadius: 1 }}
+            />
+          </Grid>
+
+          {/* Employment Type */}
+          <Grid item xs={12} sm={6} md={4}>
+            <TextField
+              select
+              label="Employment Type"
+              name="employementType"
+              value={jobDetails.employementType}
+              onChange={handleChange}
+              fullWidth
+              variant="outlined"
+              sx={{ bgcolor: "#f4f6f8", borderRadius: 1 }}
+            >
+              {["Full-Time", "Internship"].map((option) => (
+                <MenuItem key={option} value={option}>
+                  {option}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Grid>
+
+          {/* Location */}
+          <Grid item xs={12} sm={6} md={4}>
+            <TextField
+              label="Location"
+              name="location"
+              value={jobDetails.location}
+              onChange={handleChange}
+              fullWidth
+              variant="outlined"
+              sx={{ bgcolor: "#f4f6f8", borderRadius: 1 }}
+            />
+          </Grid>
+
+             {/* Salary */}
+             <Grid item xs={12} sm={6} md={4}>
+            <TextField
+              label="Salary"
+              name="salary"
+              type="number"
+              value={jobDetails.salary}
+              onChange={handleChange}
+              fullWidth
+              variant="outlined"
+              sx={{ bgcolor: "#f4f6f8", borderRadius: 1 }}
+            />
+          </Grid>
+
+           {/* Experience */}
+           <Grid item xs={12} sm={6} md={4}>
+            <TextField
+              label="Experience"
+              name="experience"
+              type="number"
+              value={jobDetails.experience}
+              onChange={handleChange}
+              fullWidth
+              variant="outlined"
+              sx={{ bgcolor: "#f4f6f8", borderRadius: 1 }}
+            />
+          </Grid>
+
+
+           {/* Key Skills */}
+           <Grid item xs={12} sm={6} md={4}>
+            <Typography>Key Skills</Typography>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  name="skills"
+                  value="Sales"
+                  checked={jobDetails.skills.includes("Sales")}
+                  onChange={handleChange}
+                />
+              }
+              label="Sales"
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  name="skills"
+                  value="Marketing"
+                  checked={jobDetails.skills.includes("Marketing")}
+                  onChange={handleChange}
+                />
+              }
+              label="Marketing"
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  name="skills"
+                  value="Project Management"
+                  checked={jobDetails.skills.includes("Project Management")}
+                  onChange={handleChange}
+                />
+              }
+              label="Project Management"
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  name="skills"
+                  value="UI/UX Design"
+                  checked={jobDetails.skills.includes("UI/UX Design")}
+                  onChange={handleChange}
+                />
+              }
+              label="UI/UX Design"
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  name="skills"
+                  value="communication"
+                  checked={jobDetails.skills.includes("communication")}
+                  onChange={handleChange}
+                />
+              }
+              label="communication"
+            />
+          </Grid>
+
+        
+          {/* Qualification */}
+          <Grid item xs={12} sm={6} md={4}>
+            <Typography>Qualification</Typography>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  name="qualification"
+                  value="Degree"
+                  checked={jobDetails.qualification.includes("Degree")}
+                  onChange={handleChange}
+                />
+              }
+              label="Degree"
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  name="qualification"
+                  value="B.Tech"
+                  checked={jobDetails.qualification.includes("B.Tech")}
+                  onChange={handleChange}
+                />
+              }
+              label="B.Tech"
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  name="qualification"
+                  value="Masters Degree"
+                  checked={jobDetails.qualification.includes("Masters Degree")}
+                  onChange={handleChange}
+                />
+              }
+              label="Masters Degree"
+            />
+          </Grid>
+          
+           {/* Position */}
+           <Grid item xs={12} sm={6} md={4}>
+            <TextField
+              label="Position"
+              name="position"
+              type="number"
+              value={jobDetails.position}
+              onChange={handleChange}
+              fullWidth
+              variant="outlined"
+              sx={{ bgcolor: "#f4f6f8", borderRadius: 1 }}
+            />
+          </Grid>
+          {/* Job Description */}
+          <Grid item xs={12} sm={6} md={4}>
+            <TextField
+              label="Job Description"
+              name="description"
+              value={jobDetails.description}
+              onChange={handleChange}
+              fullWidth
+              variant="outlined"
+              multiline
+              // rows={6}
+              sx={{ bgcolor: "#f4f6f8", borderRadius: 1 }}
+            />
+          </Grid>
+
+         
+          {/* Buttons */}
+          <Grid item xs={12} sx={{ display: "flex", justifyContent: "center", gap: 2 }}>
+            <Button variant="contained" color="primary" onClick={handleAdd}>
+              Add Job
+            </Button>
+            <Button variant="outlined" color="error" onClick={handleCancel}>
+              Cancel
+            </Button>
+          </Grid>
+        </Grid>
       </Box>
+
+      {/* Snackbar for success/error messages */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={handleSnackbarClose}
+      >
+        <Alert onClose={handleSnackbarClose} severity={snackbar.severity} sx={{ width: "100%" }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 };

@@ -1,6 +1,5 @@
 import React from "react";
 import Landingpage from "./components/landingpage";
-import Addtojob  from "./Company/addtojob";
 import CompanyDashboard from "./Company/Companydashboard";
 import UserRegistrationForm from "./User/UserRegistration";
 import UserLoginPage from "./User/Userlogin";
@@ -9,8 +8,11 @@ import CompanyloginPage from "./Company/Companylogin";
 import CompanyRegistrationPage from "./Company/Companyregistration";
 import Userdashboard from "./User/Userdashboard";
 import Userprofile from "./User/Userprofile";
-import Companyprofile from "./Company/Companyprofile";
 import Userlistedjobs from "./User/Userlistedjobs";
+import AppliedJobsPage from "./User/Appliedjobs";
+import AppliedUser from "./Company/Userappliedlist";
+import CompanyProfile from "./Company/Companyprofile";
+import AddtoJob from "./Company/addtojob";
 
 
 const App = () => {
@@ -21,13 +23,15 @@ const App = () => {
         <Route path="/Companylogin" element={<CompanyloginPage />} />
         <Route path="/Companyregistration" element={<CompanyRegistrationPage />} />
         <Route path="/Companydashboard" element={<CompanyDashboard />} />
-        <Route path="/Companyprofile" element={<Companyprofile/>}/>
-        <Route path="/Addtojob" element={<Addtojob />} />
+        <Route path="/Companyprofile" element={<CompanyProfile />}/>
+        <Route path="Addtojob" element={<AddtoJob />} />
+        <Route path="/applieduser" element={<AppliedUser />} />
         <Route path="/Userlogin" element={<UserLoginPage />} />
         <Route path="/Userregistration" element={<UserRegistrationForm />}/>
         <Route path="/Userdashboard" element={<Userdashboard />}/>
         <Route path="/Userprofile" element={<Userprofile />}/>
-        <Route path="/userlistedjobs/:category" element={<Userlistedjobs />} />
+        <Route path="/listed-applied" element={<AppliedJobsPage />} />
+        <Route path="/Userlistedjobs/:category" element={<Userlistedjobs />} />
 
     </Routes>
     </BrowserRouter>

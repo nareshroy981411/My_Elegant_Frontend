@@ -23,32 +23,69 @@ const CompanyDashboard = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const navigate = useNavigate();
-  const [jobs, setJobs] = useState([]); 
-  const [selectedJob, setSelectedJob] = useState(null); 
+  const [jobs, setJobs] = useState([]);
+  const [selectedJob, setSelectedJob] = useState(null);
 
   useEffect(() => {
-        
-    const fetchJobs = async () => {
-      try {
-        const response = await axios.get("http://localhost:3000/addjob");
-        console.log(response);
-        setJobs(response.data);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    fetchJobs();
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      navigate("/Companylogin");
+    } else {
+      fetchJobs();
+    }
   }, []);
+  
+  const fetchJobs = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/jobs/getJobsByCompany", {
+        headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` },
+      });
+  
+      if (response.status === 200) {
+        setJobs(response.data.data);
+      } else {
+        console.error(`Unexpected response status: ${response.status}`);
+      }
+    } catch (error) {
+      if (error.response) {
+        console.error("Server responded with status:", error.response.status);
+        if (error.response.status === 403) {
+          console.error("Forbidden. Likely token issue or permissions.");
+        }
+      } else if (error.request) {
+        console.error("No response received:", error.request);
+      } else {
+        console.error("Error setting up request:", error.message);
+      }
+    }
+  };
+  
+  
 
   const deleteJob = async (jobId) => {
     try {
-      await axios.delete(`http://localhost:3000/addjob/${jobId}`);
-      setJobs((prevJobs) => prevJobs.filter((job) => job.id !== jobId));
-      setSelectedJob(null); 
+      console.log(`Attempting to delete job with ID: ${jobId}`);
+  
+      // Sending a DELETE request to the API endpoint
+      const res = await axios.delete(`http://localhost:5000/jobs/job/${jobId}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` },
+      });
+  
+      if (res.status === 200) {
+        console.log("Job deleted successfully:", res.data.message || "Job deleted.");
+  
+        setJobs((prevJobs) => prevJobs.filter((job) => job._id !== jobId));
+        setSelectedJob(null); 
+      } else {
+        console.error("Unexpected response while deleting job:", res.statusText);
+      }
     } catch (error) {
-      console.error("Failed to delete job:", error);
+      const errorMessage = error.response?.data?.message || error.message;
+      console.error("Failed to delete job:", errorMessage);
     }
   };
+  
+  
 
   const [anchorEl, setAnchorEl] = useState(null);
   const [openMenu, setOpenMenu] = useState(false);
@@ -73,10 +110,30 @@ const CompanyDashboard = () => {
     handleMenuClose();
   };
 
-  const handleCardClick = (jobId) => {
-    const job = jobs.find((job) => job.id === jobId);
-    setSelectedJob(job);
+  const handleCardClick = async (jobId) => {
+    console.log("Fetching job with ID:", jobId);
+  
+    try {
+      const res = await axios.get(`http://localhost:5000/jobs/getJob/${jobId}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` },
+      });
+  
+      if (res.status === 200) {
+        console.log("Job fetched successfully:", res.data.job);
+        setSelectedJob(res.data.job); 
+      } else {
+        console.error("Failed to fetch job details:", res.statusText);
+      }
+    } catch (error) {
+      // Improved error handling
+      const errorMessage = error.response?.data?.message || error.message;
+      console.error("Failed to get job:", errorMessage);
+    }
   };
+  
+  
+  
+  
 
   if (selectedJob) {
     return (
@@ -85,46 +142,61 @@ const CompanyDashboard = () => {
           <Typography variant="h4" gutterBottom>
             Job Details
           </Typography>
-          <Card>
+          <Card sx={{ padding: 2, borderRadius: 2, boxShadow: 3 }}>
             <CardContent>
               <Typography variant="h6" gutterBottom>
-                {selectedJob.jobTitle}
+                {selectedJob?.title || "N/A"}
               </Typography>
-              <Typography variant="body1">
-                <strong>Category:</strong> {selectedJob.category}
+              <Typography variant="body1" sx={{ mt: 1 }}>
+                <strong>Category:</strong> {selectedJob?.category || "N/A"}
               </Typography>
-              <Typography variant="body1">
-                <strong>Company Name:</strong> {selectedJob.companyName}
+              <Typography variant="body1" sx={{ mt: 1 }}>
+                <strong>Location:</strong> {selectedJob?.location || "N/A"}
               </Typography>
-              <Typography variant="body1">
-                <strong>Location:</strong> {selectedJob.location}
+              <Typography variant="body1" sx={{ mt: 1 }}>
+                <strong>Qualification:</strong> {selectedJob?.qualification || "N/A"}
               </Typography>
-              <Typography variant="body1">
-                <strong>Qualification:</strong> {selectedJob.qualification}
+              <Typography variant="body1" sx={{ mt: 1 }}>
+                <strong>Key Skills:</strong> {selectedJob?.skills || "N/A"}
               </Typography>
-              <Typography variant="body1">
-                <strong>Key Skills:</strong> {selectedJob.keySkills}
+              <Typography variant="body1" sx={{ mt: 1 }}>
+                <strong>Employment Type:</strong> {selectedJob?.employementType || "N/A"}
               </Typography>
-              <Typography variant="body1">
-                <strong>Employment Type:</strong> {selectedJob.employmentType}
+              <Typography variant="body1" sx={{ mt: 1 }}>
+                <strong>Salary:</strong> {selectedJob?.salary || "N/A"}
               </Typography>
-              <Typography variant="body1">
-                <strong>Salary:</strong> {selectedJob.Salary}
+              <Typography variant="body1" sx={{ mt: 1 }}>
+                <strong>Positions:</strong> {selectedJob?.position || "N/A"}
               </Typography>
-              <Typography variant="body1">
-                <strong>Position:</strong> {selectedJob.Position}
+              <Typography variant="body1" sx={{ mt: 1 }}>
+                <strong>Experience:</strong> {selectedJob?.experienceLevel || "N/A"}
               </Typography>
-              <Typography variant="body1">
-                <strong>Experience:</strong> {selectedJob.Experience}
-              </Typography>
-              <Button
-                variant="contained"
-                color="error"
-                sx={{ mt: 2 }}
-                onClick={() => deleteJob(selectedJob.id)}
-              >
-                Remove
-              </Button>
+              <Box sx={{ display: "flex", justifyContent: "space-between", mt: 3 }}>
+                <Button
+                  variant="contained"
+                  color="error"
+                  sx={{
+                    fontWeight: "bold",
+                    boxShadow: 3,
+                    "&:hover": { backgroundColor: "#d32f2f" },
+                  }}
+                  onClick={() => deleteJob(selectedJob?._id)}
+                >
+                  Remove
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  sx={{
+                    fontWeight: "bold",
+                    boxShadow: 3,
+                    "&:hover": { backgroundColor: "#f5f5f5" },
+                  }}
+                  onClick={() => setSelectedJob(null)}
+                >
+                  Cancel
+                </Button>
+              </Box>
             </CardContent>
           </Card>
         </Box>
@@ -138,8 +210,15 @@ const CompanyDashboard = () => {
       <AppBar position="static" sx={{ backgroundColor: "#1976d2" }}>
         <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
           <Typography variant="h5" component="div">
-            Company Dashboard
+            RealEstatePro
           </Typography>
+          <Button
+            color="inherit"
+            onClick={() => navigate("/applieduser")}
+            sx={{ display: "flex", alignItems: "right" }}
+          >
+            Applicants
+          </Button>
           <Box sx={{ display: "flex", alignItems: "center" }}>
             <Avatar
               sx={{
@@ -193,8 +272,9 @@ const CompanyDashboard = () => {
         {/* Job Cards or No Job Message */}
         {jobs.length > 0 ? (
           <Grid container spacing={3}>
-            {jobs.map((job, index) => (
-              <Grid item xs={12} sm={6} md={4} key={index}>
+            {jobs.map((job) => (
+              console.log(job),
+              <Grid item xs={12} sm={6} md={4} key={job._id}>
                 <Card
                   sx={{
                     transition: "transform 0.3s, box-shadow 0.3s",
@@ -205,25 +285,29 @@ const CompanyDashboard = () => {
                       cursor: "pointer",
                     },
                   }}
-                  onClick={() => handleCardClick(job.id)}
+                  onClick={() => handleCardClick(job._id)}
                 >
                   <CardContent>
                     <Typography variant="h6" gutterBottom>
-                      {job.jobTitle}
+                      {job.title}
                     </Typography>
                     <Typography variant="body1">
                       <strong>Category:</strong> {job.category}
                     </Typography>
                     <Typography variant="body1">
-                      <strong>Company Name:</strong> {job.companyName}
+                      <strong>Location:</strong> {job.location}
+                    </Typography>
+                    <Typography variant="body1">
+                      <strong>Salary:</strong> ${job.salary.toLocaleString()}
                     </Typography>
                   </CardContent>
                 </Card>
               </Grid>
             ))}
           </Grid>
-        ) : null}
-
+        ) : (
+          <Typography>No jobs available.</Typography>
+        )}
         {/* Add New Job Button */}
         <Button
           variant="contained"
@@ -235,8 +319,7 @@ const CompanyDashboard = () => {
           Add New Job
         </Button>
       </Container>
-        </Box>
-    
+    </Box>
   );
 };
 
