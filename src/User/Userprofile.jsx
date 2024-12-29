@@ -22,7 +22,7 @@ import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 const Userprofile = () => {
   const [avatar, setAvatar] = useState(null);
-  const [skills, setSkills] = useState([]);
+  const [skills, setSkills] = useState("");
   const [skillInput, setSkillInput] = useState("");
   const [resume, setResume] = useState(null);
   const [userData, setUserData] = useState({});
@@ -37,26 +37,23 @@ const Userprofile = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Fetch user data from the API with token
     const fetchUserData = async () => {
       try {
-        const token = localStorage.getItem("token"); // Retrieve the token
+        const token = localStorage.getItem("token");
         if (!token) {
           throw new Error("Token is missing. Please login again.");
         }
-
         const response = await axios.get(
           "https://my-elegant-backend-api.onrender.com/users/profile",
           {
             headers: {
-              Authorization: `Bearer ${token}`, // Attach the token
+              Authorization: `Bearer ${token}`,
             },
           }
         );
         const data = response.data;
         setUserData(data);
-        console.log(data);
-        setSkills(data.skills || []);
+        setSkills(data.skills || "");
         setAvatar(data.avatar || null);
         setResume(data.resume || null);
         setLoading(false);
@@ -159,21 +156,20 @@ const Userprofile = () => {
   const handleSkillKeyDown = (e) => {
     if (e.key === "Enter" && skillInput.trim()) {
       e.preventDefault();
-      if (
-        !skills
-          .map((s) => s.toLowerCase())
-          .includes(skillInput.trim().toLowerCase())
-      ) {
-        setSkills((prevSkills) => [...prevSkills, skillInput.trim()]);
-      }
+      const updatedSkills = skills
+        ? `${skills},${skillInput.trim()}`
+        : skillInput.trim();
+      setSkills(updatedSkills);
       setSkillInput("");
     }
   };
 
   const handleDeleteSkill = (skillToDelete) => {
-    setSkills((prevSkills) =>
-      prevSkills.filter((skill) => skill !== skillToDelete)
-    );
+    const updatedSkills = skills
+      .split(",")
+      .filter((skill) => skill.trim() !== skillToDelete)
+      .join(",");
+    setSkills(updatedSkills);
   };
 
   const handleResumeUpload = (e) => {
@@ -340,7 +336,7 @@ const Userprofile = () => {
               InputProps={{
                 startAdornment: (
                   <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap" }}>
-                    {skills.map((skill, index) => (
+                    {skills.split(",").map((skill, index) => (
                       <Chip
                         key={index}
                         label={skill}

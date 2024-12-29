@@ -7,12 +7,12 @@ import { BrowserRouter, Route,Routes } from "react-router-dom";
 import CompanyloginPage from "./Company/Companylogin";
 import CompanyRegistrationPage from "./Company/Companyregistration";
 import Userdashboard from "./User/Userdashboard";
-import Userprofile from "./User/Userprofile";
 import Userlistedjobs from "./User/Userlistedjobs";
 import AppliedJobsPage from "./User/Appliedjobs";
 import AppliedUser from "./Company/Userappliedlist";
 import CompanyProfile from "./Company/Companyprofile";
 import AddtoJob from "./Company/addtojob";
+import Userprofile from "./User/Userprofile"
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 

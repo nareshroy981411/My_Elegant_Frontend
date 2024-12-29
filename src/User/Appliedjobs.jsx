@@ -8,8 +8,6 @@ import {
   Menu,
   MenuItem,
   List,
-  ListItem,
-  ListItemText,
   Card,
   CardContent,
   CircularProgress,
@@ -25,8 +23,6 @@ const AppliedJobsPage = () => {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-
-
 
   // Fetch applied jobs
   useEffect(() => {
@@ -59,13 +55,11 @@ const AppliedJobsPage = () => {
   };
 
   const handleProfile = () => {
-    // Navigate to the profile page
     navigate("/Userprofile");
     setAnchorEl(null);
   };
 
   const handleLogout = () => {
-    // Implement logout functionality
     navigate("/Userlogin");
     setAnchorEl(null);
   };
@@ -73,9 +67,9 @@ const AppliedJobsPage = () => {
   return (
     <div>
       {/* Navbar */}
-      <AppBar position="sticky" color="primary">
+      <AppBar position="sticky" color="primary" sx={{background: "rgb(228, 45, 64)"}}>
         <Toolbar>
-          <Typography variant="h6" sx={{ flexGrow: 1, textAlign: "left" }}>
+          <Typography variant="h4" sx={{ flexGrow: 1, textAlign: "left" ,fontFamily: "Times New Roman",}}>
             RealEstatePro
           </Typography>
 
@@ -111,9 +105,20 @@ const AppliedJobsPage = () => {
 
       {/* Content Section */}
       <Box sx={{ padding: 3 }}>
-        <Typography variant="h5" gutterBottom>
+        <Typography variant="h5" gutterBottom sx={{animation: "colorChange 3s infinite",}}>
           Applied Jobs
         </Typography>
+        <style>
+          {`
+          @keyframes colorChange {
+            0% {color: rgb(71, 221, 255)}
+              25% {color:rgb(237, 96, 80); /* Change to a different color (e.g., Tomato) */}
+            50% {color:rgb(241, 145, 71); /* Change to a different color (e.g., Tomato) */}
+            75% {color:rgb(125, 124, 123); /* Change to a different color (e.g., Tomato) */}
+            100% {color:rgb(212, 55, 230);
+          }
+        `}
+        </style>
 
         {loading ? (
           <CircularProgress />
@@ -122,17 +127,16 @@ const AppliedJobsPage = () => {
         ) : (
           <List>
             {jobs.map((job,ind) => (
-              // console.log("myjobs",job.job?.company==null?"null":job.job?.company.companyName)
-              <Card key={job.id} sx={{ marginBottom: 2 }}>
+              <Card key={job.id} sx={{ marginBottom: 2,backgroundColor:"#fff4e6" }} >
                 <CardContent>
-                  <Typography variant="h6">{job.job?.title}</Typography>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography variant="h4" style={{fontFamily: "Times New Roman",}}>{job.job?.title}</Typography>
+                  <Typography variant="h6" color="secondary">
                     Company: {job.job?.company==null?"my company":job.job?.company.companyName}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography variant="h6" color="secondary">
                     Location: {job.job?.location}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography variant="h6" color="secondary">
                     Employment Type: {job.job?.employementType}
                   </Typography>
                 </CardContent>

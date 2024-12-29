@@ -25,6 +25,7 @@ import { AccountCircle } from "@mui/icons-material";
 import ArrowCircleLeftIcon from '@mui/icons-material/ArrowCircleLeft';
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
+import Footer from "../components/footer";
 
 const Userlistedjobs = () => {
   const { category } = useParams();
@@ -94,7 +95,6 @@ const Userlistedjobs = () => {
         return;
       }
       
-console.log("jobbbb",selectedJob._id)
       const response = await axios.get(
         `https://my-elegant-backend-api.onrender.com/application/user-apply/${selectedJob._id}` ,
         {
@@ -106,12 +106,12 @@ console.log("jobbbb",selectedJob._id)
       );
 
       setApplySuccess(true);
-      setTimeout(() => setApplySuccess(false), 3000); // Hide after 3 seconds
+      setTimeout(() => setApplySuccess(false), 3000);
     } catch (err) {
       console.error("Error applying for the job:", err);
       setApplySuccess(false);
     } finally {
-      setSelectedJob(null); // Clear selected job
+      setSelectedJob(null); 
     }
   };
 
@@ -122,9 +122,9 @@ console.log("jobbbb",selectedJob._id)
   return (
     <Box>
       {/* Navbar */}
-      <AppBar position="sticky" color="primary">
+      <AppBar position="sticky" color="primary" sx={{background: "rgb(228, 45, 64)"}} >
         <Toolbar>
-          <Typography variant="h6" sx={{ flexGrow: 1, textAlign: "left" }}>
+          <Typography variant="h4" sx={{ flexGrow: 1, textAlign: "left",fontFamily: "Times New Roman", }}>
             RealEstatePro
           </Typography>
 
@@ -160,9 +160,20 @@ console.log("jobbbb",selectedJob._id)
 
       {/* Page Content */}
       <Container sx={{ my: 4 }}>
-        <Typography variant="h4" gutterBottom textAlign="center">
+        <Typography variant="h4" gutterBottom textAlign="center" sx={{animation: "colorChange 3s infinite",}}>
           {category} Jobs
         </Typography>
+        <style>
+          {`
+          @keyframes colorChange {
+            0% {color: rgb(71, 221, 255)}
+              25% {color:rgb(237, 96, 80); /* Change to a different color (e.g., Tomato) */}
+            50% {color:rgb(241, 145, 71); /* Change to a different color (e.g., Tomato) */}
+            75% {color:rgb(125, 124, 123); /* Change to a different color (e.g., Tomato) */}
+            100% {color:rgb(212, 55, 230);
+          }
+        `}
+        </style>
         {loading ? (
           <Box textAlign="center" my={4}>
             <CircularProgress />
@@ -180,10 +191,12 @@ console.log("jobbbb",selectedJob._id)
                   onClick={() => handleJobClick(item.jobs[index])}
                   sx={{
                     cursor: "pointer",
+                    backgroundColor: "#dab6ff",
                     transition: "transform 0.3s, box-shadow 0.3s",
                     "&:hover": {
                       transform: "scale(1.05)",
                       boxShadow: 6,
+                      backgroundColor: "#f3e9ff"
                     },
                   }}
                 >
@@ -214,8 +227,7 @@ console.log("jobbbb",selectedJob._id)
 
       {/* Job Details Dialog */}
       {selectedJob && (
-        console.log(selectedJob),
-        <Dialog open={Boolean(selectedJob)} onClose={handleCancel}>
+        <Dialog open={Boolean(selectedJob)} onClose={handleCancel} >
           <DialogTitle>{selectedJob.category} Job Details</DialogTitle>
           <DialogContent>
             <Typography variant="body1" gutterBottom>
@@ -253,7 +265,7 @@ console.log("jobbbb",selectedJob._id)
             </Typography>
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleApply}>Apply</Button>
+            <Button onClick={handleApply} sx={{backgroundColor:"GrayText",color:"#fff"}}>Apply</Button>
             <Snackbar
               open={applySuccess}
               autoHideDuration={3000} // Auto-hide after 3 seconds
@@ -263,7 +275,7 @@ console.log("jobbbb",selectedJob._id)
                 Job applied successfully!
               </Alert>
             </Snackbar>
-            <Button onClick={handleCancel} variant="outlined" color="secondary">
+            <Button onClick={handleCancel} variant="outlined" color="error">
               Cancel
             </Button>
           </DialogActions>
@@ -283,6 +295,7 @@ console.log("jobbbb",selectedJob._id)
           </Alert>
         </Snackbar>
       )}
+      <Footer/>
     </Box>
   );
 };
