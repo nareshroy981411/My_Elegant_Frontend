@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { Box, Grid, Typography } from '@mui/material';
 import { Facebook, Twitter, Instagram, LinkedIn, LocationOn, Email, Phone } from '@mui/icons-material';
 
@@ -10,8 +10,8 @@ const Footer = () => {
         color: "#fff",
         py: 4,
         px: 2,
-        position: "fixed",
-        bottom: 0,
+        mt:"70px",
+    
         width: "100%",
       }}
     >

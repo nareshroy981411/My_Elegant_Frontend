@@ -31,7 +31,6 @@ const AppliedUser = () => {
 
    useEffect(() => {
     const token = localStorage.getItem("authToken");
-    console.log(token)
     if (!token) {
       navigate("/Companylogin");
       return; 
@@ -45,7 +44,6 @@ const AppliedUser = () => {
             headers: { Authorization:`Bearer ${token}` },
           }
         );
-        console.log(response.data.data)
         setUsers(response.data.data);
       } catch (error) {
         console.error("Error fetching users:", error);
@@ -143,7 +141,7 @@ const AppliedUser = () => {
       >
         <Typography
           variant={isMobile ? "h5" : "h4"}
-          sx={{ mb: 4, fontWeight: "bold", animation: "colorChange 3s infinite", }}
+          fontWeight="bold" margin="15px"
         >
           Users Applied for the Job
         </Typography>
@@ -161,11 +159,10 @@ const AppliedUser = () => {
         <Grid container spacing={3}>
           {users.length > 0 ? (
             users.map((user) => (
-              // console.log(user.job.title)
               <Grid item xs={12} sm={6} md={4} key={user.id}>
                 <Card
                   sx={{
-                    background: "linear-gradient(to bottom right, rgb(245, 207, 104), rgb(231, 233, 237))",
+                    background: "#a5cf5d",
                     borderRadius: "16px",
                     boxShadow: "0 4px 10px rgba(0, 0, 0, 0.2)",
                     transition: "transform 0.3s, box-shadow 0.3s",

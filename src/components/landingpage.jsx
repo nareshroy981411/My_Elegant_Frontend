@@ -1,5 +1,5 @@
 
-import React from 'react';
+
 import { AppBar,Avatar, Toolbar, Typography, Button, Container, Grid, Box, IconButton, Paper,useMediaQuery,Card, } from '@mui/material';
 import { LocationOn, Email, Phone, Facebook, Twitter, Instagram, LinkedIn } from '@mui/icons-material';
 import { useTheme } from "@mui/material/styles";
@@ -49,7 +49,7 @@ const LandingPage = () => {
         title: "Company Insights",
         description: "Get detailed reviews and ratings from current employees.",
         img: "https://cdn-icons-png.flaticon.com/512/2942/2942975.png",
-        bg: "#e6f7ff",
+        bg: "#fff4e6",
         iconBg: "#ffd8a8",
       },
       {
